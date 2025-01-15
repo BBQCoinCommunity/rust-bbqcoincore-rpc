@@ -383,10 +383,13 @@ pub trait RpcApi: Sized {
     /// Returns a data structure containing various state info regarding
     /// blockchain processing.
     fn get_blockchain_info(&self) -> Result<json::GetBlockchainInfoResult> {
+        let mut raw: serde_json::Value = self.call("getblockchaininfo", &[])?;
         // The softfork fields are not backwards compatible:
         // - 0.18.x returns a "softforks" array and a "bip9_softforks" map.
         // - 0.19.x returns a "softforks" map.
-        self.call("getblockchaininfo", &[])
+        Ok({
+            serde_json::from_value(raw)?
+        })
     }
 
     /// Returns the numbers of block in the longest chain.
